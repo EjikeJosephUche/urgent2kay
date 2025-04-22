@@ -29,7 +29,7 @@
 // const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 
-import * as admin from "firebase-admin";
+import * as admin from "firebase-admin"; 
 import * as path from "path";
 
 // Initialize Firebase Admin SDK with the service account key
