@@ -1,5 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
 const getEnvironmentVariable = (key: string, defaultVal?: string): string => {
   const value = process.env[key] || defaultVal;
   if (value === undefined) {
