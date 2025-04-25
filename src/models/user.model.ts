@@ -14,7 +14,7 @@ const userSchema: Schema = new Schema(
         "bill-owner",
         "service-provider",
         "bill-sponsor",
-        "expense-manager",
+        "expense-manager", 
       ],
     },
     email: {
