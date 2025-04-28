@@ -2,7 +2,6 @@ import express from "express";
 import { PORT } from "./utils/env";
 import cors from "cors";
 import connectDB from "./config/db";
-import paymentRoutes from "./routes/payment.route";
 import indexRoute from "./routes/index.route";
 
 const app = express();
@@ -24,5 +23,5 @@ app.use("/api", indexRoute); // Central route file for all routes
 // app.use("/payment", paymentRoutes); !! This is now in the central route file
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🎉 Server is running on port ${PORT}`);
 });
