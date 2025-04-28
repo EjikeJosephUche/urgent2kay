@@ -4,7 +4,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   phone: string;
-  role: "bill-owner" | "service-provider" | "bill-sponsor" | "expense-manager"; //expense-manager
+  role?: "bill-owner" | "service-provider" | "bill-sponsor" | "expense-manager"; //expense-manager
   email: string;
   password: string;
   verified: boolean;

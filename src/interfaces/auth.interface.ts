@@ -1,7 +1,7 @@
 interface IAuth {
-    _id: string,
-    username: string,
-    password: string
+  _id: string;
+  email: string;
+  password: string;
 }
 
 export default IAuth;

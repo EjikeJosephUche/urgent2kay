@@ -6,7 +6,7 @@ import IAuth from "../interfaces/IAuth";
 declare global {
   namespace Express {
     interface Request {
-      user?: IAuth;
+      userId?: IAuth;
     }
   }
 }

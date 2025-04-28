@@ -26,7 +26,7 @@ const authMiddleware = (
       "_id" in decoded &&
       "email" in decoded
     ) {
-      req.user = decoded as IAuth;
+      req.userId = (decoded as IAuth)._id;
     }
 
     next();

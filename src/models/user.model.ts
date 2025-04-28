@@ -9,12 +9,11 @@ const userSchema: Schema = new Schema(
     phone: { type: String, required: true, unique: true },
     role: {
       type: String,
-      required: true,
       enum: [
         "bill-owner",
         "service-provider",
         "bill-sponsor",
-        "expense-manager", 
+        "expense-manager",
       ],
     },
     email: {
