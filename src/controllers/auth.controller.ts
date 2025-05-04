@@ -133,7 +133,9 @@ class AuthController {
       await userService.sendVerificationEmail(
         email,
         verificationLink,
-        user.firstName
+        user.firstName,
+        "Urgent 2kay",
+        fullUrl
       );
       return res.status(200).json({
         message: "Verification email resent successfully",

@@ -8,7 +8,7 @@ const billSchema = new mongoose.Schema<IBill & Document>(
       ref: "User",
       required: true,
     },
-    title: { types: String, required: true },
+    title: { type: String, required: true },
     description: { type: String, required: true },
     amount: { type: Number, required: true },
     dueDate: { type: Date, required: true },

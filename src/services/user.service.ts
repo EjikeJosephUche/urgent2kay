@@ -4,6 +4,8 @@ import nodemailer from "nodemailer";
 import IUser from "../interfaces/user.interface";
 import User from "../models/user.model";
 import dotenv from "dotenv";
+import path from "path";
+
 import {
   JWT_SECRET,
   CLIENT_URL,
@@ -14,6 +16,7 @@ import {
 } from "../utils/env";
 dotenv.config();
 
+const logoFilePath = path.join(__dirname, "../utils/logo.png");
 class UserService {
   async createUser(
     email: string,
@@ -51,7 +54,14 @@ class UserService {
       );
       console.log(fullUrl);
       const verificationLink = `${fullUrl}/api/auth/verify-email?token=${verificationToken}`;
-      await this.sendVerificationEmail(email, verificationLink, firstName);
+      await this.sendVerificationEmail(
+        email,
+        verificationLink,
+        firstName,
+        "Urgent 2Kay",
+        fullUrl,
+        logoFilePath
+      );
       return savedUser;
     } catch (error) {
       throw new Error(`Error creating user: ${error}`);
@@ -106,7 +116,10 @@ class UserService {
   async sendVerificationEmail(
     email: string,
     link: string,
-    firstName?: string
+    firstName: string,
+    companyName: string = "Urgent 2Kay",
+    fullurl: string,
+    logoUrl: string = logoFilePath
   ): Promise<void> {
     const transporter = nodemailer.createTransport({
       host: EMAIL_HOST,
@@ -130,9 +143,70 @@ class UserService {
     const mailOptions = {
       from: EMAIL_USER,
       to: email,
-      subject: "Verify your email",
-      html: `<p>Hello ${firstName}. Please verify your email by clicking the link below:</p>
-           <a href="${link}">Verify Email</a>`,
+      subject: "Verify Your Email",
+      html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Activation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333333; background-color: #e7d8fa; font-size: 16px;">
+    <!-- Main Container -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#e4daf0">
+        <tr>
+            <td align="center" valign="top">
+                <!-- Email Content -->
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 20px auto; background-color:#e4daf0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                    <!-- Logo Header -->
+                    <tr>
+                        <td style="padding: 25px 30px 15px 30px;" align="center">
+                          <!-- Inline SVG logo -->
+                      <h1 style="color: #6216be; font-size: 35px; margin: 0 0 20px 0;">URGENT2KAY</h1>
+                    </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 0 30px 20px 30px;">
+                            <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0;">Account Activation</h2>
+                            <p style="margin: 0 0 10px 0;">Dear ${firstName},</p>
+                            <p style="margin: 0;">Thanks for getting started with our <strong style="color: #1B0B2E">${companyName}</strong> Finance App. You're almost ready to start enjoying our services. Simply click the verify button below to verify your email address.</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding: 0 30px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="border-top: 1px solid #eaeaea; padding: 25px 0;"></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Verify Button -->
+                    <tr>
+                        <td style="padding: 0 30px 15px 30px;" align="center">
+                            <table border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center" bgcolor="rgb(98, 22, 190)" style="border-radius: 4px;">
+                                        <a href="${link}" target="_blank" style="display: inline-block; padding: 12px 25px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, sans-serif;">VERIFY ACCOUNT</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+`,
     };
 
     await transporter.sendMail(mailOptions, function (error, info) {
@@ -163,11 +237,13 @@ class UserService {
 
       const verificationLink = `${fullUrl}/api/auth/verify-email?token=${token}`;
 
-      // Reuse the sendVerificationEmail method
       await this.sendVerificationEmail(
         user.email,
         verificationLink,
-        user.firstName
+        user.firstName,
+        "Urgent 2Kay",
+        fullUrl,
+        logoFilePath
       );
     } catch (error) {
       throw new Error(`Could not resend verification email: ${error}`);
@@ -209,11 +285,13 @@ class UserService {
       if (!user) {
         throw new Error("User not found");
       }
-      // Implement password reset logic here (e.g., send reset link)
       const resetToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
         expiresIn: "30m",
       });
       const resetLink = `${fullUrl}/api/auth/reset-password?token=${resetToken}`;
+      const firstName = user.firstName;
+      const companyName = "Urgent 2Kay";
+      const logoUrl = logoFilePath;
       const transporter = nodemailer.createTransport({
         host: EMAIL_HOST,
         port: Number(EMAIL_PORT),
@@ -226,9 +304,73 @@ class UserService {
       const mailOptions = {
         from: EMAIL_USER,
         to: email,
-        subject: "Reset your password",
-        html: `<p>Please reset your password by clicking the link below:</p>
-                       <a href="${resetLink}">Reset Password</a>`,
+        subject: "Reset Your Password",
+        html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Activation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333333; background-color:#e7d8fa; font-size: 16px;">
+    <!-- Main Container -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#e4daf0">
+        <tr>
+            <td align="center" valign="top">
+                <!-- Email Content -->
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 20px auto; background-color: #d2b7f3; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                    <!-- Logo Header -->
+                    <tr>
+                        <td style="padding: 25px 30px 15px 30px;" align="center">
+                          <!-- Inline SVG logo -->
+                      <h1 style="color: #6216be; font-size: 35px; margin: 0 0 20px 0;">URGENT2KAY</h1>
+                    </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 0 30px 20px 30px;">
+                            <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0;">Account Activation</h2>
+                            <p style="margin: 0 0 10px 0;">Dear ${firstName},</p>
+                            <p style="margin: 0;">Thanks for getting started with our <strong style="color: #1B0B2E">${companyName}</strong> Finance App. You're almost ready to start enjoying our services. Simply click the verify button below to verify your email address.</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding: 0 30px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="border-top: 1px solid #eaeaea; padding: 25px 0;"></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Verify Button -->
+                    <tr>
+                        <td style="padding: 0 30px 15px 30px;" align="center">
+                            <table border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center" bgcolor="rgb(98, 22, 190)" style="border-radius: 4px;">
+                                        <a href="${resetLink}" target="_blank" style="display: inline-block; padding: 12px 25px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, sans-serif;">VERIFY ACCOUNT</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+`,
+
+        // `<p>Please reset your password by clicking the link below:</p>
+        //                <a href="${resetLink}">Reset Password</a>`,
       };
       await transporter.sendMail(mailOptions, function (error, info) {
         if (error) {

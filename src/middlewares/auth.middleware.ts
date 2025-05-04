@@ -5,6 +5,16 @@ import dotenv from "dotenv";
 import { JWT_SECRET } from "../utils/env";
 dotenv.config();
 
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: {
+        _id: string;
+        email?: string;
+      };
+    }
+  }
+}
 const authMiddleware = (
   req: Request,
   res: Response,
@@ -18,7 +28,7 @@ const authMiddleware = (
   }
 
   try {
-    const decoded = Jwt.verify(token as string, JWT_SECRET);
+    const decoded = Jwt.verify(token as string, JWT_SECRET) as IAuth;
 
     if (
       typeof decoded === "object" &&
@@ -26,7 +36,10 @@ const authMiddleware = (
       "_id" in decoded &&
       "email" in decoded
     ) {
-      req.userId = (decoded as IAuth)._id;
+      req.userId = {
+        _id: (decoded as IAuth)._id,
+        email: (decoded as IAuth).email,
+      };
     }
 
     next();

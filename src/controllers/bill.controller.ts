@@ -7,7 +7,7 @@ export const createBillHandler = async (
   next: NextFunction
 ) => {
   try {
-    const bill = await createBill({ ...req.body, owner: req.user._id });
+    const bill = await createBill({ ...req.body, owner: req.userId?._id });
 
     res.status(201).json({
       status: "Success",
@@ -29,7 +29,10 @@ export const getMyBills = async (
   next: NextFunction
 ) => {
   try {
-    const bills = await getBillsByOwner(req.user._id);
+    if (!req.userId?._id) {
+      throw new Error("User ID is required");
+    }
+    const bills = await getBillsByOwner(req.userId._id);
 
     res.status(200).json({
       status: "Success",
