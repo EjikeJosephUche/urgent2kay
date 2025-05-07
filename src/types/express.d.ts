@@ -7,6 +7,7 @@ declare global {
   namespace Express {
     interface Request {
       userId?: IAuth;
+      user?: IUser; // Added user property to the Request interface
     }
   }
 }
