@@ -1,48 +1,73 @@
-import { Request, Response, NextFunction } from "express";
-import { createBill, getBillsByOwner } from "../services/bill.service";
+import { Request, Response } from "express";
+import {
+  createBill,
+  getBillsByOwner,
+  updateBillStatus,
+} from "../services/bill.service";
+import { sendSuccessResponse, sendErrorResponse } from "../utils/apiResponse";
+import { Merchant } from "../models/merchant.model";
 
-export const createBillHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const create = async (req: Request, res: Response) => {
   try {
-    const bill = await createBill({ ...req.body, owner: req.userId?._id });
+    const {
+      owner,
+      merchant,
+      amount,
+      dueDate,
+      referenceNumber,
+      category,
+      description,
+    } = req.body;
 
-    res.status(201).json({
-      status: "Success",
-      data: {
-        bill,
-      },
-    });
+    //validate category fileds
+    if (!category) {
+      sendErrorResponse(res, "Category is required", null, 400);
+      return;
+    }
+
+    // Verify service provider exists
+    const provider = await Merchant.findById(merchant);
+    if (!provider) {
+      sendErrorResponse(res, "Service provider not found", null, 404);
+      return;
+    }
+
+    const bill = await createBill(
+      owner,
+      merchant,
+      amount,
+      dueDate,
+      referenceNumber,
+      category,
+      description
+    );
+    sendSuccessResponse(res, "Bill created successfully 🎉", bill, 201);
   } catch (error: any) {
-    next(error);
-    res
-      .status(500)
-      .json({ status: "Failed", message: "Failed to create Bill Bundle 😞" });
+    sendErrorResponse(res, "Failed to create bill 😞", error.message, 400);
   }
 };
 
-export const getMyBills = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getMyBills = async (req: Request, res: Response) => {
   try {
-    if (!req.userId?._id) {
-      throw new Error("User ID is required");
-    }
-    const bills = await getBillsByOwner(req.userId._id);
-
-    res.status(200).json({
-      status: "Success",
-      data: { bills },
-    });
+    const bills = await getBillsByOwner(req.user.id);
+    sendSuccessResponse(res, "Bills retrieved successfully 🎉", bills);
   } catch (error: any) {
-    next(error);
-    res.status(500).json({
-      status: "Failed",
-      message: "Failed to get all user bills",
-    });
+    sendErrorResponse(res, "Failed to retrieve bills 😞", error.message, 400);
+  }
+};
+
+export const updateStatus = async (req: Request, res: Response) => {
+  try {
+    const { billId } = req.params;
+    const { status } = req.body;
+    const bill = await updateBillStatus(billId, status);
+    sendSuccessResponse(res, "Bill status updated successfully 🎉", bill);
+  } catch (error: any) {
+    sendErrorResponse(
+      res,
+      "Failed to update bill status 😞",
+      error.message,
+      400
+    );
   }
 };

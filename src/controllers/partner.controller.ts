@@ -1,4 +1,5 @@
 //bypassed services and brought the business logic on here to controller, pardon me please 🤝
+//i did lots of console log messages to aid debugging
 
 import { Request, Response, NextFunction } from "express";
 import { Merchant } from "../models/merchant.model";
@@ -25,7 +26,6 @@ export const registerMerchant = async (
 
     const registrationData = req.body;
 
-    // File handling happens here
     let ownershipProof = undefined;
     if (req.file) {
       ownershipProof = {
@@ -45,22 +45,20 @@ export const registerMerchant = async (
 
     await merchant.save();
 
-
     res.status(201).json({
       success: true,
       message: "Merchant registration submitted successfully 🎉",
       merchantId: merchant._id,
     });
-    return; 
+
+    return;
   } catch (error: any) {
     console.error("Registration error:", error);
 
-    // Clean up uploaded file 
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
 
- 
     if (res.headersSent) {
       console.error("Headers already sent, cannot send error response");
       return;

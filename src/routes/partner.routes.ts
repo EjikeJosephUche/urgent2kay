@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   registerMerchant,
   getMerchantStatus,
-} from "../controllers/Merchant.controller";
+} from "../controllers/partner.controller";
 import { validateMerchantRegistration } from "../middlewares/validation";
 import multer from "multer";
 import fs from "fs";
@@ -16,14 +16,13 @@ const router = express.Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = "./uploads";
-
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Create unique filename for the uploaded file
+    // Create unique filename
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + "-" + file.originalname);
   },
@@ -40,7 +39,7 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024, 
+    fileSize: 5 * 1024 * 1024,
   },
 });
 
@@ -50,7 +49,6 @@ router.post(
   (req: Request, res: Response, next: NextFunction) => {
     console.log("1. File upload completed");
     try {
-
       if (typeof req.body.business === "string")
         req.body.business = JSON.parse(req.body.business);
       if (typeof req.body.personal === "string")
@@ -59,16 +57,16 @@ router.post(
         req.body.bank = JSON.parse(req.body.bank);
       console.log("2. JSON parsing succeeded");
 
-      next(); 
+      next();
     } catch (err) {
       console.log("2. JSON parsing failed");
- 
+      // Clean up file if JSON parsing fails
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-  
+
       res.status(400).json({ error: "Invalid form data" });
-      return; 
+      return;
     }
   },
 
@@ -76,7 +74,7 @@ router.post(
     console.log("3. Before validation");
     next();
   },
-  validateMerchantRegistration, 
+  validateMerchantRegistration,
   (req: Request, res: Response, next: NextFunction) => {
     console.log("4. After validation");
     next();

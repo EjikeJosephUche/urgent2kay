@@ -1,0 +1,6 @@
+Hi {{sponsorName}},
+
+You've been invited to sponsor {{bundleName}}.
+Access it here: {{link}}
+
+Link expires: {{expiresAt}}

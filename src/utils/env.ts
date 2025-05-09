@@ -17,7 +17,7 @@ export const CLIENT_URL = getEnvironmentVariable(
 export const EMAIL_HOST = getEnvironmentVariable("EMAIL_HOST");
 export const EMAIL_PORT = getEnvironmentVariable("EMAIL_PORT", "587");
 export const EMAIL_USER = getEnvironmentVariable("EMAIL_USER");
-export const EMAIL_PASS = getEnvironmentVariable("EMAIL_PASS");
+export const EMAIL_PASS = getEnvironmentVariable("EMAIL_PASS"); 
 
 // export const FB_APIKEY = getEnvironmentVariable("FB_APIKEY");
 // export const FB_AUTH_DOMAIN = getEnvironmentVariable("FB_AUTH_DOMAIN");

@@ -1,9 +1,16 @@
 import Jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import IAuth from "../interfaces/auth.interface";
+import User from "../models/user.model";
 import dotenv from "dotenv";
 import { JWT_SECRET } from "../utils/env";
+import { sendErrorResponse } from "../utils/apiResponse";
+
 dotenv.config();
+
+interface AuthenticatedRequest extends Request {
+  user: typeof User | any;
+}
 
 declare global {
   namespace Express {
@@ -49,6 +56,25 @@ const authMiddleware = (
       message: "invalid token",
     });
   }
+};
+
+//though role is optional or will likely not be used in the frontend
+//still implimented role based authentication
+export const authorize = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      sendErrorResponse(
+        res,
+        `User role ${
+          req.user?.role ?? "unknown"
+        } is not authorized to access this route`,
+        null,
+        403
+      );
+      return;
+    }
+    next();
+  };
 };
 
 export default authMiddleware;
