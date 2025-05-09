@@ -33,10 +33,10 @@ class UserService {
         throw new Error("email already exist");
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new User({
         email,
-        password: hashedPassword,
+        password,
         firstName,
         lastName,
         phone,
@@ -105,8 +105,6 @@ class UserService {
 
   async logoutUser(token: string): Promise<void> {
     try {
-      // Invalidate the token (e.g., by adding it to a blacklist)
-      // This is a placeholder; implement your own logic for token invalidation
       console.log(`Token invalidated: ${token}`);
     } catch (error) {
       throw new Error("Error logging out");
@@ -310,7 +308,7 @@ class UserService {
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Account Activation</title>
+    <title>Password Reset</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; color: #333333; background-color:#e7d8fa; font-size: 16px;">
     <!-- Main Container -->
@@ -330,9 +328,9 @@ class UserService {
                     <!-- Content -->
                     <tr>
                         <td style="padding: 0 30px 20px 30px;">
-                            <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0;">Account Activation</h2>
+                            <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0;">Password Reset</h2>
                             <p style="margin: 0 0 10px 0;">Dear ${firstName},</p>
-                            <p style="margin: 0;">Thanks for getting started with our <strong style="color: #1B0B2E">${companyName}</strong> Finance App. You're almost ready to start enjoying our services. Simply click the verify button below to verify your email address.</p>
+                            <p style="margin: 0;">Thanks for using <strong style="color: #1B0B2E">${companyName}</strong> Finance App. To reset your password, Simply click the Reset Password button below to Reset your email password.</p>
                         </td>
                     </tr>
                     
@@ -353,7 +351,7 @@ class UserService {
                             <table border="0" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center" bgcolor="rgb(98, 22, 190)" style="border-radius: 4px;">
-                                        <a href="${resetLink}" target="_blank" style="display: inline-block; padding: 12px 25px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, sans-serif;">VERIFY ACCOUNT</a>
+                                        <a href="${resetLink}" target="_blank" style="display: inline-block; padding: 12px 25px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, sans-serif;">Reset Password</a>
                                     </td>
                                 </tr>
                             </table>
@@ -391,8 +389,8 @@ class UserService {
       if (!user) {
         throw new Error("Invalid token or user not found");
       }
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      user.password = hashedPassword;
+      // const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = newPassword;
       await user.save();
     } catch (error) {
       throw new Error(`Error resetting password: ${error}`);
