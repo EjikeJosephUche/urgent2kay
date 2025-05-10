@@ -1,32 +1,37 @@
-import mongoose, { Document } from "mongoose";
-import { IBill } from "../interfaces/bill.interface";
+import mongoose, { Schema, Document } from "mongoose";
+import { IBill, BillStatus } from "../interfaces/bill.interface";
 
-const billSchema = new mongoose.Schema<IBill & Document>(
+const billSchema: Schema = new Schema<IBill>(
   {
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    merchant: {
+      type: Schema.Types.ObjectId,
+      ref: "Merchant",
       required: true,
-    },
-    title: { type: String, required: true },
-    description: { type: String, required: true },
+    }, //here ⚠️⚠️⚠️
     amount: { type: Number, required: true },
-    dueDate: { type: Date, required: true },
+    dueDate: { type: Date },
     status: {
       type: String,
-      required: true,
-      enum: ["pending", "partially-paid", "paid", "overdue"],
-      default: "pending",
+      enum: Object.values(BillStatus),
+      default: BillStatus.PENDING,
     },
-    serviceProvider: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    description: { type: String },
+    referenceNumber: { type: String, required: true },
+    merchantBankDetails: {
+      bankName: String,
+      accountName: String,
+      accountNumber: String,
+    }, //here ⚠️⚠️⚠️
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    //just added these lines ⚠️⚠️⚠️
     category: {
       type: String,
+      enum: ["rent", "utility", "e-com", "others"],
       required: true,
-      enum: ["education", "utility", "rent", "health", "other"],
     },
+    priority: { type: String, enum: ["high", "medium", "low"], default: "low" },
   },
   { timestamps: true }
 );
 
-const Bill = mongoose.model<IBill & Document>("Bill", billSchema);
-export default Bill;
+export default mongoose.model<IBill>("Bill", billSchema);

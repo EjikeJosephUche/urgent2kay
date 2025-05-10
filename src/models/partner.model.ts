@@ -1,5 +1,5 @@
-import { MerchantDocument } from "../interfaces/merchant";
-import mongoose, {models, model} from "mongoose";
+import { MerchantDocument } from "../interfaces/partner.interface";
+import mongoose, { Schema } from "mongoose";
 
 const MerchantSchema = new mongoose.Schema<MerchantDocument>(
   {
@@ -27,19 +27,29 @@ const MerchantSchema = new mongoose.Schema<MerchantDocument>(
         path: String,
         filename: String,
         mimetype: String,
-      }, //if you make ownershipProof optional, also make it optional in the frontend
+      }, //if you make file optional, also make it optional in the backend
       agreedToTerms: { type: Boolean, required: true },
     },
     status: { type: String, default: "pending" },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      // required: true,
+    },
   },
   { timestamps: true }
 );
 
-// export const Merchant = mongoose.model<MerchantDocument>(
-//   "Merchant",
-//   MerchantSchema
-// );
+const indexes: [Record<string, any>, Record<string, any>][] =
+  MerchantSchema.indexes();
 
-const Merchant = models.Merchant || model("Merchant", MerchantSchema);
+indexes.forEach(([fields]) => {
+  if (fields["user_1"]) {
+    MerchantSchema.index({ user_1: 1 }, { unique: false });
+  }
+});
 
-export default Merchant;
+export const Merchant = mongoose.model<MerchantDocument>(
+  "Merchant",
+  MerchantSchema
+);
