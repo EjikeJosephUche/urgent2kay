@@ -32,9 +32,9 @@ router.post("/reset-password", (req: Request, res: Response) => {
 //     authController.updatePassword(req, res);
 //   }
 // );
-router.post("/refresh-token", (req: Request, res: Response) => {
-  authController.refreshToken(req, res);
-});
+// router.post("/refresh-token", (req: Request, res: Response) => {
+//   authController.refreshToken(req, res);
+// });
 router.get("/verify-email", (req: Request, res: Response) => {
   authController.verifyEmail(req, res);
 });

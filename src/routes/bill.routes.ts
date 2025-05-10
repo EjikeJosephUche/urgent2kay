@@ -11,7 +11,7 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.post("/", authorize(UserRole.BILL_OWNER, UserRole.MERCHANT), create); //here ⚠️⚠️⚠️
+router.post("/", authorize(UserRole.BILL_OWNER), create); //here ⚠️⚠️⚠️
 
 router.get("/my-bills", authorize(UserRole.MERCHANT), getMyBills); //here ⚠️⚠️⚠️
 

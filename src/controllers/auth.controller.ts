@@ -23,9 +23,13 @@ class AuthController {
           message: "User already exists",
         });
       }
-      const verificationToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
-        expiresIn: "30m",
-      });
+      const verificationToken = jwt.sign(
+        { _id: user._id, email: user.email, role: user.role },
+        JWT_SECRET,
+        {
+          expiresIn: "30d",
+        }
+      );
 
       return res.status(201).json({
         message: "User created successfully",
@@ -62,29 +66,29 @@ class AuthController {
     });
   }
 
-  async refreshToken(req: Request, res: Response) {
-    const token = req.header("Authorization")?.replace("Bearer", "").trim();
-    if (!token) {
-      return res.status(401).json({
-        message: "Access denied, token is missing",
-      });
-    }
+  // async refreshToken(req: Request, res: Response) {
+  //   const token = req.header("Authorization")?.replace("Bearer", "").trim();
+  //   if (!token) {
+  //     return res.status(401).json({
+  //       message: "Access denied, token is missing",
+  //     });
+  //   }
 
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-      const newToken = jwt.sign({ userId: decoded.userId }, JWT_SECRET, {
-        expiresIn: "1h",
-      });
-      return res.status(200).json({
-        message: "Token refreshed successfully",
-        token: newToken,
-      });
-    } catch (error) {
-      return res.status(401).json({
-        message: "Invalid token",
-      });
-    }
-  }
+  //   try {
+  //     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+  //     const newToken = jwt.sign({ userId: decoded.userId }, JWT_SECRET, {
+  //       expiresIn: "1h",
+  //     });
+  //     return res.status(200).json({
+  //       message: "Token refreshed successfully",
+  //       token: newToken,
+  //     });
+  //   } catch (error) {
+  //     return res.status(401).json({
+  //       message: "Invalid token",
+  //     });
+  //   }
+  // }
 
   async forgotPassword(req: Request, res: Response) {
     const { email } = req.body;

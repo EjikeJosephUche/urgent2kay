@@ -2,7 +2,7 @@
 //i did lots of console log messages to aid debugging
 
 import { Request, Response, NextFunction } from "express";
-import { Merchant } from "../models/merchant.model";
+import  Merchant  from "../models/merchant.model";
 import { MerchantRegistrationData } from "../types/merchantRegTypes";
 import { Multer } from "multer";
 import fs from "fs";

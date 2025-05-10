@@ -5,14 +5,30 @@ import {
 } from "../services/billBundle.service";
 import { body, validationResult } from "express-validator";
 import { BillBundle } from "../models/billBundle.model";
+import Bill from "../models/bill.model";
+import mongoose from "mongoose";
+// import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
 export const createBundle = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
+    console.log("=== CONTROLLER REACHED ===");
+    console.log("req.userId:", req.userId);
+    console.log("req.user:", req.user);
+
     const { title, bills, email, description } = req.body;
+
+    console.log("User ID:", req.userId?._id); // Now properly typed
+
+    if (!req.user?._id) {
+      //keep eyes here ⚠️
+      console.log("AUTH FAILURE: Missing userId");
+      res.status(401).json({ error: "Unauthorized - please login" });
+      return;
+    }
 
     //check to ensure inputs are correct and if bills is an array of bill IDs
     if (!title || !bills || !Array.isArray(bills) || !email) {
@@ -22,10 +38,25 @@ export const createBundle = async (
       return;
     }
 
+    if (bills.some((id) => !mongoose.Types.ObjectId.isValid(id))) {
+      res.status(400).json({ error: "Invalid bill ID format" });
+      return;
+    }
+
+    const validBills = await Bill.find({
+      _id: { $in: bills },
+      user: req.user._id,
+    });
+
+    if (validBills.length !== bills.length) {
+      res.status(403).json({ error: "Some bills not found or unauthorized" });
+      return;
+    }
+
     const bundle = await createBillBundle(
       title,
       bills,
-      req.user.id,
+      req.user._id,
       description
     );
 

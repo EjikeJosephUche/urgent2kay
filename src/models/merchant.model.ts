@@ -1,5 +1,5 @@
 import { MerchantDocument } from "../interfaces/merchant";
-import mongoose from "mongoose";
+import mongoose, {models, model} from "mongoose";
 
 const MerchantSchema = new mongoose.Schema<MerchantDocument>(
   {
@@ -35,7 +35,11 @@ const MerchantSchema = new mongoose.Schema<MerchantDocument>(
   { timestamps: true }
 );
 
-export const Merchant = mongoose.model<MerchantDocument>(
-  "Merchant",
-  MerchantSchema
-);
+// export const Merchant = mongoose.model<MerchantDocument>(
+//   "Merchant",
+//   MerchantSchema
+// );
+
+const Merchant = models.Merchant || model("Merchant", MerchantSchema);
+
+export default Merchant;

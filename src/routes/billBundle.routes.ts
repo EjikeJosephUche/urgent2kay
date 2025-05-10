@@ -7,18 +7,20 @@ import {
 import authMiddleware from "../middlewares/auth.middleware";
 import { verifyBundleLink } from "../middlewares/verifyBundleLink";
 import { body } from "express-validator";
+import { RequestHandler } from "express";
 
 const router = Router();
 
 router.post(
   "/create",
-  authMiddleware,
+  authMiddleware as RequestHandler,
   [
     body("title").notEmpty().withMessage("Title is required"),
     body("bills")
       .isArray({ min: 1 })
       .withMessage("You must have least one bill"),
     body("bills.*").isMongoId().withMessage("Invalid bill ID"),
+    body("sponsorEmail").isEmail().normalizeEmail(),
     body("description").optional().isString(),
   ],
   createBundle

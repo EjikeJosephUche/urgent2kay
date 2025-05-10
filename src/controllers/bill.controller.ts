@@ -5,7 +5,8 @@ import {
   updateBillStatus,
 } from "../services/bill.service";
 import { sendSuccessResponse, sendErrorResponse } from "../utils/apiResponse";
-import { Merchant } from "../models/merchant.model";
+import Merchant from "../models/merchant.model";
+import IUser from "../interfaces/user.interface";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -49,7 +50,12 @@ export const create = async (req: Request, res: Response) => {
 
 export const getMyBills = async (req: Request, res: Response) => {
   try {
-    const bills = await getBillsByOwner(req.user.id);
+    if (!req.user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const bills = await getBillsByOwner(req.user._id);
     sendSuccessResponse(res, "Bills retrieved successfully 🎉", bills);
   } catch (error: any) {
     sendErrorResponse(res, "Failed to retrieve bills 😞", error.message, 400);
