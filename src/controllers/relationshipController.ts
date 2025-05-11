@@ -1,272 +1,335 @@
 import { Request, Response } from "express";
-import Relationship from "../models/relationship.model";
-import User from "../models/user.model";
-import Notification from "../models/notification.model";
-import { createNotification } from "../services/notification.service";
+import relationshipService from "../services/relationship.service";
+import { IUser } from "../interfaces/user.interface";
+import { asyncHandler } from "../utils/errorHandler";
 
-/**
- * Create a new relationship request
- */
-export const createRelationship = async (req: Request, res: Response) => {
-  try {
-    const { acceptorId, type, customType, spendingLimit, limitPeriod, rules, notes } = req.body;
-    const requestorId = req.user?._id;
+// Extended Request interface with user
+interface AuthenticatedRequest extends Request {
+  user?: IUser;
+  userId?: any;
+}
 
-    // Validate users exist
-    const acceptor = await User.findById(acceptorId);
-    if (!acceptor) {
-      return res.status(404).json({ message: "User not found" });
+export class RelationshipController {
+  // Relationship Profile Controllers
+  createRelationship = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const {
+      relatedUser,
+      relationshipType,
+      name,
+      customTypeName,
+      photo,
+      description
+    } = req.body;
+
+    // Get user ID from authenticated request
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
     }
 
-    // Check if relationship already exists
-    const existingRelationship = await Relationship.findOne({
-      requestor: requestorId,
-      acceptor: acceptorId,
-      type,
-    });
+    const relationship = await relationshipService.createRelationship(
+      userId._id,
+      relatedUser,
+      relationshipType,
+      name,
+      customTypeName,
+      photo,
+      description
+    );
 
-    if (existingRelationship) {
-      return res.status(409).json({ message: "Relationship already exists" });
+    return res.status(201).json({
+      message: "Relationship created successfully",
+      relationship
+    });
+  });
+
+  getRelationships = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
     }
 
-    // Create relationship
-    const relationship = await Relationship.create({
-      requestor: requestorId,
-      acceptor: acceptorId,
-      type,
-      customType: type === "custom" ? customType : undefined,
-      spendingLimit,
-      limitPeriod,
-      rules,
-      notes,
-      status: "pending",
+    const relationships = await relationshipService.getRelationships(userId._id);
+
+    return res.status(200).json({
+      message: "Relationships retrieved successfully",
+      relationships
     });
+  });
 
-    // Create notification for acceptor
-    await createNotification({
-      recipient: acceptorId,
-      type: "relationship",
-      title: "New Relationship Request",
-      message: `You have received a new ${type} relationship request.`,
-      relatedId: relationship._id,
-    });
-
-    res.status(201).json({
-      message: "Relationship request created successfully",
-      relationship,
-    });
-  } catch (error) {
-    console.error("Error creating relationship:", error);
-    res.status(500).json({ message: "Failed to create relationship" });
-  }
-};
-
-/**
- * Get all relationships for the authenticated user
- */
-export const getRelationships = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?._id;
-    const { status, type } = req.query;
-
-    const query: any = {
-      $or: [{ requestor: userId }, { acceptor: userId }],
-    };
-
-    if (status) {
-      query.status = status;
-    }
-
-    if (type) {
-      query.type = type;
-    }
-
-    const relationships = await Relationship.find(query)
-      .populate("requestor", "firstName lastName email")
-      .populate("acceptor", "firstName lastName email")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({ relationships });
-  } catch (error) {
-    console.error("Error fetching relationships:", error);
-    res.status(500).json({ message: "Failed to fetch relationships" });
-  }
-};
-
-/**
- * Get a specific relationship by ID
- */
-export const getRelationshipById = async (req: Request, res: Response) => {
-  try {
+  getRelationshipById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
-    const userId = req.user?._id;
+    const userId = req.userId;
 
-    const relationship = await Relationship.findOne({
-      _id: id,
-      $or: [{ requestor: userId }, { acceptor: userId }],
-    })
-      .populate("requestor", "firstName lastName email")
-      .populate("acceptor", "firstName lastName email");
-
-    if (!relationship) {
-      return res.status(404).json({ message: "Relationship not found" });
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
     }
 
-    res.status(200).json({ relationship });
-  } catch (error) {
-    console.error("Error fetching relationship:", error);
-    res.status(500).json({ message: "Failed to fetch relationship" });
-  }
-};
+    const relationship = await relationshipService.getRelationshipById(id);
 
-/**
- * Update relationship status (accept, reject, block)
- */
-export const updateRelationshipStatus = async (req: Request, res: Response) => {
-  try {
+    // Check if user is part of the relationship
+    if (
+      relationship.creator.toString() !== userId._id &&
+      relationship.relatedUser.toString() !== userId._id
+    ) {
+      return res.status(403).json({
+        message: "Forbidden: You don't have access to this relationship"
+      });
+    }
+
+    return res.status(200).json({
+      message: "Relationship retrieved successfully",
+      relationship
+    });
+  });
+
+  updateRelationship = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
-    const userId = req.user?._id;
+    const updateData = req.body;
+    const userId = req.userId;
 
-    // Verify user is the acceptor
-    const relationship = await Relationship.findOne({
-      _id: id,
-      acceptor: userId,
-    });
-
-    if (!relationship) {
-      return res.status(404).json({ message: "Relationship not found" });
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
     }
 
-    // Update status
-    relationship.status = status;
-    await relationship.save();
+    const updatedRelationship = await relationshipService.updateRelationship(
+      id,
+      userId._id,
+      updateData
+    );
 
-    // Create notification for requestor
-    let notificationMessage = "";
-    switch (status) {
-      case "active":
-        notificationMessage = "Your relationship request has been accepted.";
-        break;
-      case "rejected":
-        notificationMessage = "Your relationship request has been rejected.";
-        break;
-      case "blocked":
-        notificationMessage = "This relationship has been blocked.";
-        break;
-    }
-
-    await createNotification({
-      recipient: relationship.requestor,
-      type: "relationship",
-      title: "Relationship Status Update",
-      message: notificationMessage,
-      relatedId: relationship._id,
-    });
-
-    res.status(200).json({
-      message: "Relationship status updated successfully",
-      relationship,
-    });
-  } catch (error) {
-    console.error("Error updating relationship status:", error);
-    res.status(500).json({ message: "Failed to update relationship status" });
-  }
-};
-
-/**
- * Update relationship details (spending limit, rules, etc.)
- */
-export const updateRelationship = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { spendingLimit, limitPeriod, rules, notes } = req.body;
-    const userId = req.user?._id;
-
-    // Verify user is part of the relationship
-    const relationship = await Relationship.findOne({
-      _id: id,
-      $or: [{ requestor: userId }, { acceptor: userId }],
-      status: "active", // Only active relationships can be updated
-    });
-
-    if (!relationship) {
-      return res.status(404).json({ message: "Active relationship not found" });
-    }
-
-    // Update fields
-    if (spendingLimit !== undefined) relationship.spendingLimit = spendingLimit;
-    if (limitPeriod) relationship.limitPeriod = limitPeriod;
-    if (rules) relationship.rules = { ...relationship.rules, ...rules };
-    if (notes) relationship.notes = notes;
-
-    await relationship.save();
-
-    // Create notification for the other party
-    const otherPartyId =
-      relationship.requestor.toString() === userId.toString()
-        ? relationship.acceptor
-        : relationship.requestor;
-
-    await createNotification({
-      recipient: otherPartyId,
-      type: "relationship",
-      title: "Relationship Updated",
-      message: "Your relationship details have been updated.",
-      relatedId: relationship._id,
-    });
-
-    res.status(200).json({
+    return res.status(200).json({
       message: "Relationship updated successfully",
-      relationship,
+      relationship: updatedRelationship
     });
-  } catch (error) {
-    console.error("Error updating relationship:", error);
-    res.status(500).json({ message: "Failed to update relationship" });
-  }
-};
+  });
 
-/**
- * Delete/terminate a relationship
- */
-export const deleteRelationship = async (req: Request, res: Response) => {
-  try {
+  deleteRelationship = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
-    const userId = req.user?._id;
+    const userId = req.userId;
 
-    // Verify user is part of the relationship
-    const relationship = await Relationship.findOne({
-      _id: id,
-      $or: [{ requestor: userId }, { acceptor: userId }],
-    });
-
-    if (!relationship) {
-      return res.status(404).json({ message: "Relationship not found" });
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
     }
 
-    // Get the other party's ID
-    const otherPartyId =
-      relationship.requestor.toString() === userId.toString()
-        ? relationship.acceptor
-        : relationship.requestor;
+    await relationshipService.deleteRelationship(id, userId._id);
 
-    // Delete the relationship
-    await Relationship.deleteOne({ _id: id });
-
-    // Create notification for the other party
-    await createNotification({
-      recipient: otherPartyId,
-      type: "relationship",
-      title: "Relationship Terminated",
-      message: "A relationship you were part of has been terminated.",
-      relatedId: undefined,
+    return res.status(200).json({
+      message: "Relationship deleted successfully"
     });
+  });
 
-    res.status(200).json({
-      message: "Relationship deleted successfully",
+  // Spending Control Controllers
+  setSpendingControls = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { relationshipId } = req.params;
+    const controlData = req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    const spendingControl = await relationshipService.createOrUpdateSpendingControl(
+      relationshipId,
+      userId._id,
+      controlData
+    );
+
+    return res.status(200).json({
+      message: "Spending controls set successfully",
+      spendingControl
     });
-  } catch (error) {
-    console.error("Error deleting relationship:", error);
-    res.status(500).json({ message: "Failed to delete relationship" });
-  }
-};
+  });
+
+  getSpendingControls = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { relationshipId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    // First check if user is part of the relationship
+    const relationship = await relationshipService.getRelationshipById(relationshipId);
+    
+    if (
+      relationship.creator.toString() !== userId._id &&
+      relationship.relatedUser.toString() !== userId._id
+    ) {
+      return res.status(403).json({
+        message: "Forbidden: You don't have access to this relationship"
+      });
+    }
+
+    const spendingControl = await relationshipService.getSpendingControl(relationshipId);
+
+    return res.status(200).json({
+      message: "Spending controls retrieved successfully",
+      spendingControl
+    });
+  });
+
+  checkSpendingLimits = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { relationshipId } = req.params;
+    const { amount } = req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    // First check if user is part of the relationship
+    const relationship = await relationshipService.getRelationshipById(relationshipId);
+    
+    if (
+      relationship.creator.toString() !== userId._id &&
+      relationship.relatedUser.toString() !== userId._id
+    ) {
+      return res.status(403).json({
+        message: "Forbidden: You don't have access to this relationship"
+      });
+    }
+
+    const result = await relationshipService.checkSpendingLimits(relationshipId, amount);
+
+    return res.status(200).json({
+      message: "Spending limits checked",
+      result
+    });
+  });
+
+  // Contribution Tracking Controllers
+  recordContribution = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { relationshipId, amount, billRequestId, category, message } = req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    // First check if user is part of the relationship
+    const relationship = await relationshipService.getRelationshipById(relationshipId);
+    
+    if (
+      relationship.creator.toString() !== userId._id &&
+      relationship.relatedUser.toString() !== userId._id
+    ) {
+      return res.status(403).json({
+        message: "Forbidden: You don't have access to this relationship"
+      });
+    }
+
+    const contribution = await relationshipService.recordContribution(
+      relationshipId,
+      amount,
+      billRequestId,
+      category,
+      message
+    );
+
+    return res.status(201).json({
+      message: "Contribution recorded successfully",
+      contribution
+    });
+  });
+
+  getContributions = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { relationshipId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    // First check if user is part of the relationship
+    const relationship = await relationshipService.getRelationshipById(relationshipId);
+    
+    if (
+      relationship.creator.toString() !== userId._id &&
+      relationship.relatedUser.toString() !== userId._id
+    ) {
+      return res.status(403).json({
+        message: "Forbidden: You don't have access to this relationship"
+      });
+    }
+
+    const contributions = await relationshipService.getContributionsByRelationship(relationshipId);
+
+    return res.status(200).json({
+      message: "Contributions retrieved successfully",
+      contributions
+    });
+  });
+
+  getContributionStats = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { relationshipId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    // First check if user is part of the relationship
+    const relationship = await relationshipService.getRelationshipById(relationshipId);
+    
+    if (
+      relationship.creator.toString() !== userId._id &&
+      relationship.relatedUser.toString() !== userId._id
+    ) {
+      return res.status(403).json({
+        message: "Forbidden: You don't have access to this relationship"
+      });
+    }
+
+    const stats = await relationshipService.getContributionStats(relationshipId);
+
+    return res.status(200).json({
+      message: "Contribution stats retrieved successfully",
+      stats
+    });
+  });
+
+  sendThankYou = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { contributionId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized: User not authenticated"
+      });
+    }
+
+    const contribution = await relationshipService.sendThankYou(contributionId);
+
+    return res.status(200).json({
+      message: "Thank you recorded successfully",
+      contribution
+    });
+  });
+}
+
+export default new RelationshipController();
