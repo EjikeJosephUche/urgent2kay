@@ -1,8 +1,19 @@
+
 import { Request } from "express";
-interface IAuth extends Request {
+import IUser from "./user.interface";
+import mongoose, {Document} from 'mongoose';
+export interface IAuth extends Request {
   _id: string;
   email: string;
   password: string;
+  role: string;
 }
 
-export default IAuth;
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: IUser & mongoose.Document;
+//       authUser?: IAuth;
+//     }
+//   }
+// }

@@ -1,51 +1,28 @@
 import { Document, Types } from "mongoose";
+import { MerchantDocument } from "./merchant";
 
-//📐 extend document and comment out _id 
-export interface IBill {
-  _id?: string;
-  owner: Types.ObjectId; //ref to a User @EjikeJosephUche
-  title: string;
-  description: string;
+export enum BillStatus {
+  PENDING = "pending",
+  PARTIALLY_PAID = "partially_paid",
+  PAID = "paid",
+  CANCELLED = "cancelled",
+}
+
+export interface IBill extends Document {
+  _id: Types.ObjectId;
+  merchant: Types.ObjectId | string | MerchantDocument; //Reference to merchant ⚠️⚠️⚠️
   amount: number;
   dueDate?: Date;
-  status: "pending" | "partially-paid" | "paid" | "over-due";
-  serviceProvider?: Types.ObjectId; //ref to service provider @EjikeJosephUche
-  category: "education" | "utility" | "rent" | "health" | "other";
-  createdAt?: Date;
-  updatedAt?: Date;
+  status: BillStatus;
+  description?: string;
+  referenceNumber: string;
+  merchantBankDetails?: {
+    bankName: string;
+    accountName: string;
+    accountNumber: string;
+  }; //here ⚠️⚠️⚠️
+  owner: Types.ObjectId;
+  //just added these lines now to redo Bundel entirely ⚠️⚠️⚠️
+  category: "rent" | "utility" | "e-com" | "others";
+  priority: "high" | "meduim" | "low";
 }
-
-export interface IBillRequest {
-  _id?: string;
-  request: Types.ObjectId; //ref to bill owner @EjikeJosephUche
-  bills: Types.ObjectId[];
-  sponsors: Types.ObjectId[];
-  status:
-    | "pending"
-    | "partially-funded"
-    | "fully-funded"
-    | "paid"
-    | "cancelled";
-  totalAmount: number;
-  amountFunded: number;
-  paymentProof?: string;
-  paymentDate?: Date;
-  shareableLink: string;
-  linkExpiresAt: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-//@6lackboy042, refer here to update your Ipayment interface ⚠️
-// export interface IPayment {
-//   _id?: string;
-//   billRequest: Types.ObjectId; //ref to BillRequest
-//   sponsor: Types.ObjectId[]; //refs to User
-//   status: "pending" | "successful" | "failed";
-//   amount: number;
-//   reference: string;
-//   paymentMethod: "paystack" | "bank-transfer" | "other";
-//   paymentDate?: Date;
-//   createdAt?: Date;
-//   updatedAt?: Date;
-// }

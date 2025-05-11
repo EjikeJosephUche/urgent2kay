@@ -18,9 +18,23 @@ router.post("/login", (req: Request, res: Response) => {
 router.post("/logout", (req: Request, res: Response) => {
   authController.logout(req, res);
 });
-router.post("/refresh-token", (req: Request, res: Response) => {
-  authController.refreshToken(req, res);
+
+router.post("/forgot-password", (req: Request, res: Response) => {
+  authController.forgotPassword(req, res);
 });
+router.post("/reset-password", (req: Request, res: Response) => {
+  authController.resetPassword(req, res);
+});
+// router.post(
+//   "/update-password",
+//   authMiddleware.verifyToken,
+//   (req: Request, res: Response) => {
+//     authController.updatePassword(req, res);
+//   }
+// );
+// router.post("/refresh-token", (req: Request, res: Response) => {
+//   authController.refreshToken(req, res);
+// });
 router.get("/verify-email", (req: Request, res: Response) => {
   authController.verifyEmail(req, res);
 });
