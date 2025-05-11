@@ -1,3 +1,4 @@
+import { UserRole } from './../interfaces/user.interface';
 import { Types } from "mongoose";
 import Bill from "../models/bill.model";
 import { BillBundle } from "../models/billBundle.model";
@@ -7,43 +8,39 @@ import User from "../models/user.model";
 
 export const createBillBundle = async (
   title: string,
-  bills: string[],
-  ownerId: string,
+  billIds: string[],
+  ownerId: string, 
   description?: string
 ) => {
   try {
-    //Fetch bills WITHOUT select to get ALL fields
-    //select was giving errors innitially
-    const existingBills = await Bill.find({
-      _id: { $in: bills },
-      owner: ownerId,
-    }).lean();
+   
+    const bills = await Bill.find({ _id: { $in: billIds } }).lean();
 
-    //Validate critical fields exist
-    const validatedBills = existingBills.map((bill) => {
-      // had to force convert amount to number as safety check
+   
+    if (bills.length !== billIds.length) {
+      const missingBills = billIds.filter(
+        (id) => !bills.some((bill) => bill._id.toString() === id)
+      );
+      throw new Error(`Missing bills: ${missingBills.join(", ")}`);
+    }
+
+    
+    const validatedBills = bills.map((bill) => {
       const amount = Number(bill.amount);
-      if (isNaN(amount)) {
-        throw new Error(`Bill ${bill._id} has invalid amount (${bill.amount})`);
-      }
-
+      if (isNaN(amount)) throw new Error(`Invalid amount in bill ${bill._id}`);
       if (!bill.merchantBankDetails || !bill.category) {
         throw new Error(`Bill ${bill._id} missing required fields`);
       }
-
-      return {
-        ...bill,
-        amount,
-      };
+      return { ...bill, amount };
     });
 
-    // Create bundle with all required fields as required
+   
     const bundle = await BillBundle.create({
       title,
       description,
-      bills,
+      bills: billIds, 
       totalAmount: validatedBills.reduce((sum, bill) => sum + bill.amount, 0),
-      owner: ownerId,
+      owner: ownerId, 
       merchantBankDetails: validatedBills.map((bill) => ({
         billId: bill._id,
         ...bill.merchantBankDetails,
@@ -52,13 +49,13 @@ export const createBillBundle = async (
       })),
     });
 
-    console.log("CREATED BUNDLE:", bundle);
     return bundle;
   } catch (error: any) {
-    console.error("FULL ERROR:", error);
-    throw new Error(`Bundle creation failed: ${error.message}`);
+    console.error("Bundle creation failed:", error);
+    throw new Error(error.message || "Failed to create bundle");
   }
 };
+
 
 export const shareBundleWithSponsor = async (
   bundleId: string,

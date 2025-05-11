@@ -13,7 +13,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   phone: string;
-  role: UserRole; 
+  role: UserRole;
   email: string;
   password: string;
   verified: boolean;

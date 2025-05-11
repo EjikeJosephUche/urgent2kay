@@ -26,7 +26,7 @@ export const verifyBundleLink = async (
     if (!bundle) {
       res.status(404).json({
         success: false,
-        message: "Bundle not available (paid, expired, or invalid)",
+        message: "Bundle not available (paid, expired, or invalid)", 
       });
       return;
     }
