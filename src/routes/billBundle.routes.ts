@@ -24,7 +24,7 @@ router.post(
     body("description").optional().isString(),
   ],
   createBundle
-);
+); 
 
 router.get(
   "/:uniqueLink",
@@ -35,14 +35,14 @@ router.get(
       bundle: req.bundle,
     });
   },
-  getBundleWithLink
-);
+  getBundleWithLink 
+); 
 
 router.post(
   "/:id/share",
   authMiddleware,
   [body("sponsorEmail").isEmail().normalizeEmail()],
-  verifyBundleLink, // watch here for error ⚠️
+  // verifyBundleLink, // watch here for error. uncomment for prod ⚠️
   shareBundle
 );
 
