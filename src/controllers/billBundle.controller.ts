@@ -20,9 +20,11 @@ export const createBundle = async (
     console.log("Authenticated User:", req.authUser);
     console.log("Full User Object:", req.user);
 
-    // 1. Input Validation
+    // Input Validation
     const { title, bills: billIds, email, description } = req.body;
     const ownerId = req.authUser?._id;
+
+    console.log("Bundle Request Body:", req.body);
 
     if (!ownerId) {
       console.error("Authentication failure: Missing userId");
@@ -37,7 +39,7 @@ export const createBundle = async (
       return;
     }
 
-    // 2. Validate Bill ID Formats
+    // Validate Bill ID Formats
     const invalidIds = billIds.filter(
       (id) => !mongoose.Types.ObjectId.isValid(id)
     );
@@ -51,28 +53,10 @@ export const createBundle = async (
 
     console.log("Processing bills:", { billIds, ownerId });
 
-    // 3. Create Bundle (service handles bill validation)
+    console.log("About to call createBill");
+    // Create Bundle (service handles bill validation)
     const bundle = await createBillBundle(title, billIds, ownerId, description);
-
-    // 4. Response with shareable link
-    // res.status(201).json({
-    //   status: "Bundle created successfully",
-    //   data: {
-    //     bundle: {
-    //       createdAt: bundle.createdAt,
-    //       bills: bundle.bills.map((bill: IBill) => ({
-    //         id: bill._id,
-    //         amount: bill.amount,
-    //         dueDate: bill.dueDate,
-    //         status: bill.status,
-    //         merchant: bill.merchant,
-    //         bankDetails: bill.merchantBankDetails,
-    //         category: bill.category,
-    //       })),
-    //       // shareableLink: `${process.env.FRONTEND_URL}/bundles/${bundle.uniqueLink}`,
-    //     },
-    //   },
-    // });
+    console.log("Returned from createBill");
 
     res.status(201).json({
       status: "Success 🎉",
@@ -137,6 +121,8 @@ export const shareBundle = async (
     }
 
     const { sponsorEmail } = req.body;
+
+ 
 
     if (!sponsorEmail) {
       res.status(400).json({

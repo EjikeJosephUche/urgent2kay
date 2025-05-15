@@ -24,5 +24,5 @@ export interface IBill extends Document {
   owner: Types.ObjectId;
   //just added these lines now to redo Bundel entirely ⚠️⚠️⚠️
   category: "rent" | "utility" | "e-com" | "others";
-  priority: "high" | "meduim" | "low";
+  priority: "high" | "medium" | "low";
 }

@@ -20,7 +20,7 @@ class AuthController {
       );
       if (!user) {
         return res.status(400).json({
-          message: "User already exists",
+          message: "User already exists", 
         });
       }
       const verificationToken = jwt.sign(
