@@ -19,7 +19,7 @@ const authMiddleware: RequestHandler = async (
   try {
     // const authReq = req as AuthenticatedRequest;
     console.log("=== AUTH MIDDLEWARE TRIGGERED ===");
-    console.log("Headers:", req.headers);
+    console.log("Headers:", req.headers); 
     console.log("Full Authorization header:", req.header("Authorization"));
 
     const token = req.header("Authorization")?.replace("Bearer ", "").trim();

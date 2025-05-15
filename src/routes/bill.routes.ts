@@ -11,7 +11,13 @@ const router = Router();
 
 // router.use(authMiddleware);
 
+console.log('Starting to test Route for bills')
+
+console.log("TEST NOW!!!!⚠️");
+
 router.post("/", create); //here ⚠️⚠️⚠️
+
+console.log('NO CREATE TEST!')
 
 router.get("/my-bills", getMyBills); //here ⚠️⚠️⚠️
 
@@ -23,3 +29,4 @@ export default router;
 // authorize(UserRole.BILL_OWNER),
 //   authorize(UserRole.MERCHANT),
 //   authorize(UserRole.MERCHANT),
+

@@ -23,4 +23,6 @@ export interface IBillBundle extends Document {
     status: "pending" | "paid" | "declined";
   }[];
   merchantBankDetails: MerchantBankDetail[];
+
 }
+

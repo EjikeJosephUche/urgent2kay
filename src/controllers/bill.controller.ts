@@ -1,3 +1,5 @@
+console.log('starting to check bill contoller')
+
 import { Request, Response } from "express";
 import {
   createBill,
@@ -8,7 +10,12 @@ import { sendSuccessResponse, sendErrorResponse } from "../utils/apiResponse";
 import Merchant from "../models/merchant.model";
 import IUser from "../interfaces/user.interface";
 
+
+console.log('entering bill controller')
 export const create = async (req: Request, res: Response) => {
+  console.log('so what is happening?')
+  console.log("📥 Incoming create bill request:", req.body); 
+
   try {
     const {
       owner,
@@ -33,6 +40,12 @@ export const create = async (req: Request, res: Response) => {
       return;
     }
 
+    if (!amount || amount <= 0) {
+      sendErrorResponse(res, "Amount must be greater than 0", null, 400);
+      return;
+    }
+    
+
     const bill = await createBill(
       owner,
       merchant,
@@ -42,20 +55,24 @@ export const create = async (req: Request, res: Response) => {
       category,
       description
     );
+
+    console.log("Bill:", bill);
     sendSuccessResponse(res, "Bill created successfully 🎉", bill, 201);
   } catch (error: any) {
+    console.error("Create Bill Error:", error);
     sendErrorResponse(res, "Failed to create bill 😞", error.message, 400);
   }
 };
 
 export const getMyBills = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    console.log("Current user:", req.authUser); // Add this log
+    if (!req.authUser) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
-    const bills = await getBillsByOwner(req.user._id);
+    const bills = await getBillsByOwner(req.authUser._id);
     sendSuccessResponse(res, "Bills retrieved successfully 🎉", bills);
   } catch (error: any) {
     sendErrorResponse(res, "Failed to retrieve bills 😞", error.message, 400);
