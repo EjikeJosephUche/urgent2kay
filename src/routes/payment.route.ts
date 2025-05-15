@@ -1,18 +1,22 @@
-import express from 'express';
-import { initialize, verify } from '../controllers/paymentController';
+import express from "express";
+import { handlePaystackWebhook } from "../controllers/webhook.controller";
+import {
+  initializePayment,
+  verifyPayment,
+  chargeAuthorization,
+} from "../controllers/payment.controller";
+import authMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
+// Important: use express.raw for webhook signature validation
+router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  handlePaystackWebhook
+);
 
-/**
- * POST /payment/initialize
- * Initiates a new payment transaction with multiple providers
- */
-router.post('/initialize', initialize);
-
-/**
- * GET /payment/verify/:reference
- * Verifies payment after redirection from Paystack
- */
-router.get('/verify/:reference', verify);
+router.post("/initialize", express.json(), authMiddleware, initializePayment);
+router.get("/verify", express.json(), verifyPayment);
+router.post("/charge", express.json(), authMiddleware, chargeAuthorization);
 
 export default router;

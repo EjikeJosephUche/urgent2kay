@@ -3,9 +3,11 @@ import { PORT } from "./utils/env";
 import cors from "cors";
 import connectDB from "./config/db";
 import indexRoute from "./routes/index.route";
-import "./cron/expireBundles"; 
+import "./cron/expireBundles";
+import paymentRoutes from "./routes/payment.route";
 
 const app = express();
+app.use("/api/payment", paymentRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -21,7 +23,7 @@ connectDB();
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the Urgent2kay API! 🎉"); 
+  res.send("Welcome to the Urgent2kay API! 🎉");
 });
 app.use("/api", indexRoute); // Central route file for all routes
 // app.use("/payment", paymentRoutes); !! This is now in the central route file
