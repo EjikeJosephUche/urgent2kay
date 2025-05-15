@@ -1,5 +1,3 @@
-//lots of console logs to aid debugging
-
 import express from "express";
 import { Request, Response, NextFunction } from "express";
 import {
@@ -17,7 +15,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = "./uploads";
     if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true }); 
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
@@ -47,7 +45,6 @@ router.post(
   "/register",
   upload.single("ownershipProof"),
   (req: Request, res: Response, next: NextFunction) => {
-    console.log("1. File upload completed");
     try {
       if (typeof req.body.business === "string")
         req.body.business = JSON.parse(req.body.business);
@@ -55,7 +52,6 @@ router.post(
         req.body.personal = JSON.parse(req.body.personal);
       if (typeof req.body.bank === "string")
         req.body.bank = JSON.parse(req.body.bank);
-      console.log("2. JSON parsing succeeded");
 
       next();
     } catch (err) {
@@ -71,12 +67,10 @@ router.post(
   },
 
   (req: Request, res: Response, next: NextFunction) => {
-    console.log("3. Before validation");
     next();
   },
   validateMerchantRegistration,
   (req: Request, res: Response, next: NextFunction) => {
-    console.log("4. After validation");
     next();
   },
   registerMerchant,

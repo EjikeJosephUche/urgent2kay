@@ -1,4 +1,3 @@
-console.log("HEADER: ENTRY TO BILLBUNDLE SERVICE");
 import { UserRole } from "./../interfaces/user.interface";
 import { Types } from "mongoose";
 import Bill from "../models/bill.model";
@@ -14,11 +13,7 @@ export const createBillBundle = async (
   description?: string
 ) => {
   try {
-    console.log("starting to test logs for bills");
-
     const bills = await Bill.find({ _id: { $in: billIds } }).lean();
-
-    console.log("Fetched Bills:", bills);
 
     if (bills.length !== billIds.length) {
       const missingBills = billIds.filter(
@@ -70,12 +65,6 @@ export const shareBundleWithSponsor = async (
     const bundle = await BillBundle.findById(bundleId).populate("owner");
     const sponsor = await User.findOne({ email: sponsorEmail });
 
-    console.log("Raw sponsorEmail:", sponsorEmail);
-    console.log("Type of sponsorEmail:", typeof sponsorEmail);
-
-    console.log(sponsorEmail, sponsor);
-    console.log("sponsor is: sponsor");
-
     if (!bundle) throw new Error("Bundle not found");
     if (!sponsor) throw new Error("Sponsor not found");
 
@@ -98,8 +87,6 @@ export const shareBundleWithSponsor = async (
       sponsorName: sponsor.firstName,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
-
-    console.log(sponsor, sponsorEmail);
 
     await bundle.save();
   } catch (error) {

@@ -18,13 +18,7 @@ const authMiddleware: RequestHandler = async (
 ): Promise<void> => {
   try {
     // const authReq = req as AuthenticatedRequest;
-    console.log("=== AUTH MIDDLEWARE TRIGGERED ===");
-    console.log("Headers:", req.headers); 
-    console.log("Full Authorization header:", req.header("Authorization"));
-
     const token = req.header("Authorization")?.replace("Bearer ", "").trim();
-
-    console.log("Extracted token:", token);
 
     if (!token) {
       console.log("No token found");
@@ -38,8 +32,6 @@ const authMiddleware: RequestHandler = async (
       email: string;
       role: string;
     };
-
-    console.log("Decoded token:", decoded);
 
     // Find the user and attach to request
     const user = await User.findById(decoded.userId).select("+role");
@@ -55,12 +47,8 @@ const authMiddleware: RequestHandler = async (
     };
 
     req.user = user;
-
-    console.log("Attached authUser:", req.authUser);
-
     next();
   } catch (error) {
-    console.log("JWT verification failed", error);
     res.status(401).json({
       message: "invalid token",
     });
@@ -72,12 +60,6 @@ const authMiddleware: RequestHandler = async (
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const userRole = req.user?.role;
-    console.log("Full user object:", req.user);
-    console.log("User role:", req.user?.role);
-    console.log("User role from request:", req.user?.role);
-    console.log("Required roles:", roles);
-    console.log("Full user: ", req.user);
-
     if (!req.user?.role) {
       console.error("Role missing in user object");
       sendErrorResponse(res, "Missing user role", null, 403);

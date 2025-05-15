@@ -1,6 +1,3 @@
-console.log("TEST: APP starting...");
-console.log(console.log.toString());
-console.log(process.env.NODE_ENV);
 import express from "express";
 import { PORT } from "./utils/env";
 import cors from "cors";
