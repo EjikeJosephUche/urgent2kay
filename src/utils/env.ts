@@ -1,3 +1,8 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
 const getEnvironmentVariable = (key: string, defaultVal?: string): string => {
   const value = process.env[key] || defaultVal;
   if (value === undefined) {
@@ -6,7 +11,7 @@ const getEnvironmentVariable = (key: string, defaultVal?: string): string => {
   return value;
 };
 
-export const DB_URI = getEnvironmentVariable("DB_URI");
+export const DB_URI = getEnvironmentVariable("DB_URI", process.env.MONGODB_URI);
 export const JWT_SECRET = getEnvironmentVariable("JWT_SECRET");
 export const PORT = getEnvironmentVariable("PORT");
 export const NODE_ENV = getEnvironmentVariable("NODE_ENV", "development");

@@ -1,21 +1,24 @@
-import mongoose, { Schema, HydratedDocument } from "mongoose";
+import mongoose, { Schema, Types, HydratedDocument } from "mongoose";
 import bcrypt from "bcryptjs";
 import IUser from "../interfaces/user.interface";
 
 const userSchema: Schema = new Schema(
   {
+    // _id: { type: Types.ObjectId },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
     role: {
       type: String,
-      required: true,
       enum: [
         "bill-owner",
         "service-provider",
         "bill-sponsor",
+        "merchant",
         "expense-manager",
       ],
+      required: true,
+      default: "bill-owner",
     },
     email: {
       type: String,
@@ -25,7 +28,7 @@ const userSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: true, 
     },
     verified: {
       type: Boolean,
