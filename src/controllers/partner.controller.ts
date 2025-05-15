@@ -1,8 +1,5 @@
-//bypassed services and brought the business logic on here to controller, pardon me please 🤝
-//i did lots of console log messages to aid debugging
-
 import { Request, Response, NextFunction } from "express";
-import  Merchant  from "../models/merchant.model";
+import Merchant from "../models/merchant.model";
 import { MerchantRegistrationData } from "../types/merchantRegTypes";
 import { Multer } from "multer";
 import fs from "fs";
@@ -17,10 +14,7 @@ export const registerMerchant = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log("Registering merchant...");
-
     if (res.headersSent) {
-      console.warn("Headers already sent!");
       return;
     }
 

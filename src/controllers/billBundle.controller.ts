@@ -16,15 +16,9 @@ export const createBundle = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    console.log("=== BUNDLE CREATION CONTROLLER ===");
-    console.log("Authenticated User:", req.authUser);
-    console.log("Full User Object:", req.user);
-
     // Input Validation
     const { title, bills: billIds, email, description } = req.body;
     const ownerId = req.authUser?._id;
-
-    console.log("Bundle Request Body:", req.body);
 
     if (!ownerId) {
       console.error("Authentication failure: Missing userId");
@@ -50,10 +44,6 @@ export const createBundle = async (
       });
       return;
     }
-
-    console.log("Processing bills:", { billIds, ownerId });
-
-    console.log("About to call createBill");
     // Create Bundle (service handles bill validation)
     const bundle = await createBillBundle(title, billIds, ownerId, description);
     console.log("Returned from createBill");
@@ -121,8 +111,6 @@ export const shareBundle = async (
     }
 
     const { sponsorEmail } = req.body;
-
- 
 
     if (!sponsorEmail) {
       res.status(400).json({
