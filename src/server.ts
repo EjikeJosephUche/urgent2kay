@@ -4,8 +4,11 @@ import cors from "cors";
 import connectDB from "./config/db";
 import indexRoute from "./routes/index.route";
 import "./cron/expireBundles";
+import paymentRoutes from "./routes/payment.route";
+import "./cron/expireBundles";
 
 const app = express();
+app.use("/api/payment", paymentRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
