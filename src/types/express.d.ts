@@ -11,6 +11,7 @@ declare global {
         role?: string;
       };
       user?: IUser & Document;
+      userId?: string;
     }
   }
 }

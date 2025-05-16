@@ -6,11 +6,10 @@ import { asyncHandler } from "../utils/errorHandler";
 // Extended Request interface with user
 interface AuthenticatedRequest extends Request {
   user?: IUser;
-  userId?: any;
+  userId?: string;
 }
 
 export class RelationshipController {
-  // Relationship Profile Controllers
   createRelationship = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const {
       relatedUser,
@@ -18,20 +17,21 @@ export class RelationshipController {
       name,
       customTypeName,
       photo,
-      description
+      description,
     } = req.body;
 
-    // Get user ID from authenticated request
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
+    }
+
+    if (!relatedUser || !relationshipType || !name) {
+      return res.status(400).json({ message: "Missing required fields: relatedUser, relationshipType, or name" });
     }
 
     const relationship = await relationshipService.createRelationship(
-      userId._id,
+      userId,
       relatedUser,
       relationshipType,
       name,
@@ -42,7 +42,7 @@ export class RelationshipController {
 
     return res.status(201).json({
       message: "Relationship created successfully",
-      relationship
+      relationship,
     });
   });
 
@@ -50,16 +50,14 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    const relationships = await relationshipService.getRelationships(userId._id);
+    const relationships = await relationshipService.getRelationships(userId);
 
     return res.status(200).json({
       message: "Relationships retrieved successfully",
-      relationships
+      relationships,
     });
   });
 
@@ -68,26 +66,21 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
     const relationship = await relationshipService.getRelationshipById(id);
 
-    // Check if user is part of the relationship
     if (
-      relationship.creator.toString() !== userId._id &&
-      relationship.relatedUser.toString() !== userId._id
+      relationship.creator.toString() !== userId &&
+      relationship.relatedUser.toString() !== userId
     ) {
-      return res.status(403).json({
-        message: "Forbidden: You don't have access to this relationship"
-      });
+      return res.status(403).json({ message: "Forbidden: You don't have access to this relationship" });
     }
 
     return res.status(200).json({
       message: "Relationship retrieved successfully",
-      relationship
+      relationship,
     });
   });
 
@@ -97,20 +90,14 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    const updatedRelationship = await relationshipService.updateRelationship(
-      id,
-      userId._id,
-      updateData
-    );
+    const updatedRelationship = await relationshipService.updateRelationship(id, userId, updateData);
 
     return res.status(200).json({
       message: "Relationship updated successfully",
-      relationship: updatedRelationship
+      relationship: updatedRelationship,
     });
   });
 
@@ -119,39 +106,34 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    await relationshipService.deleteRelationship(id, userId._id);
+    await relationshipService.deleteRelationship(id, userId);
 
     return res.status(200).json({
-      message: "Relationship deleted successfully"
+      message: "Relationship deleted successfully",
     });
   });
 
-  // Spending Control Controllers
   setSpendingControls = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { relationshipId } = req.params;
     const controlData = req.body;
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
     const spendingControl = await relationshipService.createOrUpdateSpendingControl(
       relationshipId,
-      userId._id,
+      userId,
       controlData
     );
 
     return res.status(200).json({
       message: "Spending controls set successfully",
-      spendingControl
+      spendingControl,
     });
   });
 
@@ -160,28 +142,23 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    // First check if user is part of the relationship
     const relationship = await relationshipService.getRelationshipById(relationshipId);
-    
+
     if (
-      relationship.creator.toString() !== userId._id &&
-      relationship.relatedUser.toString() !== userId._id
+      relationship.creator.toString() !== userId &&
+      relationship.relatedUser.toString() !== userId
     ) {
-      return res.status(403).json({
-        message: "Forbidden: You don't have access to this relationship"
-      });
+      return res.status(403).json({ message: "Forbidden: You don't have access to this relationship" });
     }
 
     const spendingControl = await relationshipService.getSpendingControl(relationshipId);
 
     return res.status(200).json({
       message: "Spending controls retrieved successfully",
-      spendingControl
+      spendingControl,
     });
   });
 
@@ -191,52 +168,41 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    // First check if user is part of the relationship
     const relationship = await relationshipService.getRelationshipById(relationshipId);
-    
+
     if (
-      relationship.creator.toString() !== userId._id &&
-      relationship.relatedUser.toString() !== userId._id
+      relationship.creator.toString() !== userId &&
+      relationship.relatedUser.toString() !== userId
     ) {
-      return res.status(403).json({
-        message: "Forbidden: You don't have access to this relationship"
-      });
+      return res.status(403).json({ message: "Forbidden: You don't have access to this relationship" });
     }
 
     const result = await relationshipService.checkSpendingLimits(relationshipId, amount);
 
     return res.status(200).json({
       message: "Spending limits checked",
-      result
+      result,
     });
   });
 
-  // Contribution Tracking Controllers
   recordContribution = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { relationshipId, amount, billRequestId, category, message } = req.body;
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    // First check if user is part of the relationship
     const relationship = await relationshipService.getRelationshipById(relationshipId);
-    
+
     if (
-      relationship.creator.toString() !== userId._id &&
-      relationship.relatedUser.toString() !== userId._id
+      relationship.creator.toString() !== userId &&
+      relationship.relatedUser.toString() !== userId
     ) {
-      return res.status(403).json({
-        message: "Forbidden: You don't have access to this relationship"
-      });
+      return res.status(403).json({ message: "Forbidden: You don't have access to this relationship" });
     }
 
     const contribution = await relationshipService.recordContribution(
@@ -249,7 +215,7 @@ export class RelationshipController {
 
     return res.status(201).json({
       message: "Contribution recorded successfully",
-      contribution
+      contribution,
     });
   });
 
@@ -258,28 +224,23 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    // First check if user is part of the relationship
     const relationship = await relationshipService.getRelationshipById(relationshipId);
-    
+
     if (
-      relationship.creator.toString() !== userId._id &&
-      relationship.relatedUser.toString() !== userId._id
+      relationship.creator.toString() !== userId &&
+      relationship.relatedUser.toString() !== userId
     ) {
-      return res.status(403).json({
-        message: "Forbidden: You don't have access to this relationship"
-      });
+      return res.status(403).json({ message: "Forbidden: You don't have access to this relationship" });
     }
 
     const contributions = await relationshipService.getContributionsByRelationship(relationshipId);
 
     return res.status(200).json({
       message: "Contributions retrieved successfully",
-      contributions
+      contributions,
     });
   });
 
@@ -288,28 +249,23 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
-    // First check if user is part of the relationship
     const relationship = await relationshipService.getRelationshipById(relationshipId);
-    
+
     if (
-      relationship.creator.toString() !== userId._id &&
-      relationship.relatedUser.toString() !== userId._id
+      relationship.creator.toString() !== userId &&
+      relationship.relatedUser.toString() !== userId
     ) {
-      return res.status(403).json({
-        message: "Forbidden: You don't have access to this relationship"
-      });
+      return res.status(403).json({ message: "Forbidden: You don't have access to this relationship" });
     }
 
     const stats = await relationshipService.getContributionStats(relationshipId);
 
     return res.status(200).json({
       message: "Contribution stats retrieved successfully",
-      stats
+      stats,
     });
   });
 
@@ -318,16 +274,14 @@ export class RelationshipController {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized: User not authenticated"
-      });
+      return res.status(401).json({ message: "Unauthorized: User not authenticated" });
     }
 
     const contribution = await relationshipService.sendThankYou(contributionId);
 
     return res.status(200).json({
       message: "Thank you recorded successfully",
-      contribution
+      contribution,
     });
   });
 }
