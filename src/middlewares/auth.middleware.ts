@@ -6,12 +6,12 @@ import { IAuth } from "../interfaces/auth.interface";
 import User from "../models/user.model";
 import dotenv from "dotenv";
 import { JWT_SECRET } from "../utils/env";
-import { sendErrorResponse } from "../utils/apiResponse";
+import { sendErrorResponse } from "../utils/response";
 // import mongoose, { Document } from "mongoose";
 
 dotenv.config();
 
-const authMiddleware: RequestHandler = async (
+export const authenticateRequest: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -97,4 +97,4 @@ export const authorize = (...roles: string[]) => {
   };
 };
 
-export default authMiddleware;
+export default authenticateRequest;
