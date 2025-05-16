@@ -1,0 +1,1 @@
+export { default as serviceController, ServicesController } from "./services.controller"

@@ -21,6 +21,8 @@ interface Config {
   EMAIL_USER: string;
   EMAIL_PASSWORD: string;
   EMAIL_FROM: string;
+  AYINLAK_AUTH_TOKEN: string;
+  AYINLAK_BASE_URL: string;
 }
 
 const config: Config = {
@@ -31,7 +33,7 @@ const config: Config = {
   BASE_URL: process.env.BASE_URL || "http://localhost:5000",
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY as string,
   PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY as string,
-  PAYSTACK_BASE_URL: process.env.PAYSTACK_BASE_URL || "https://api.paystack.co",
+  PAYSTACK_BASE_URL: process.env.PAYSTACK_BASE_URL!,
   PAYSTACK_CALLBACK_URL: process.env.PAYSTACK_CALLBACK_URL as string,
   TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID as string,
   TWILIO_WHATSAPP_NUMBER: process.env.TWILIO_WHATSAPP_NUMBER as string,
@@ -39,6 +41,8 @@ const config: Config = {
   EMAIL_USER: process.env.EMAIL_USER as string,
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD as string,
   EMAIL_FROM: process.env.EMAIL_FROM as string,
+  AYINLAK_AUTH_TOKEN: process.env.AYINLAK_AUTH_TOKEN!,
+  AYINLAK_BASE_URL: process.env.AYINLAK_BASE_URL!
 };
 
 export default config;

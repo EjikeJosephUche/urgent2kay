@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "0d73d049-8561-4a79-bfc5-a7028ebf55bc",
+		"name": "urgent2kay",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33811443"
+	},
+	"item": [
+		{
+			"name": "initialize payment",
+			"request": {
+				"auth": {
+					"type": "inherit"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"680ab27e27204ae3e46cb83d\",\n    \"email\": \"ghhggg@gmail.com\",\n    \"amount\": 10000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/payment/initialize",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"payment",
+						"initialize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify payment",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/payment/verify/50971656-be92-483e-a7b4-b60a5d70c597",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"payment",
+						"verify",
+						"50971656-be92-483e-a7b4-b60a5d70c597"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
