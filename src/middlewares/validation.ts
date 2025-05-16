@@ -1,6 +1,7 @@
 //lots of console logs to aid debugging
 
 import { Request, Response, NextFunction } from "express";
+import { getValidationFields } from "../utils";
 
 export const validateMerchantRegistration = (
   req: Request,
@@ -46,3 +47,26 @@ export const validateMerchantRegistration = (
     return;
   }
 };
+
+type Fields = {
+  body: string[]
+  query: string[]
+  params: string[]
+}
+
+export const validateRequest = (schema: {[key: string]: any}, fields: Partial<Fields>) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (fields.body) {
+      req.body = await getValidationFields(schema, fields.body).validateAsync(req.body);
+    }
+
+    if (fields.query) {
+      req.query = await getValidationFields(schema, fields.query).validateAsync(req.query);
+    }
+
+    if (fields.params) {
+      req.params = await getValidationFields(schema, fields.params).validateAsync(req.params);
+    }
+
+    next();
+  }

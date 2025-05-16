@@ -1,0 +1,1 @@
+export { default as serviceService, ServicesService } from "./services.service"

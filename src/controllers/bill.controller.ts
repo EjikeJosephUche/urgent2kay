@@ -4,7 +4,7 @@ import {
   getBillsByOwner,
   updateBillStatus,
 } from "../services/bill.service";
-import { sendSuccessResponse, sendErrorResponse } from "../utils/apiResponse";
+import { sendSuccessResponse, sendErrorResponse } from "../utils/response";
 import Merchant from "../models/merchant.model";
 import IUser from "../interfaces/user.interface";
 

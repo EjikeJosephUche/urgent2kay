@@ -6,6 +6,7 @@ import billRoute from "./bill.routes";
 import partnerRoute from "./partner.routes";
 import billBundleRoutes from "./billBundle.routes";
 import relationshipRoutes from "./relationship.routes";
+import servicesRoutes from "./services.route";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use("/bill-bundle", billBundleRoutes); //newest
 router.use("/partner", partnerRoute);
 // router.use("/user", userRoutes);
 router.use("/relationship", relationshipRoutes);
+router.use("/services", servicesRoutes);
 
 
 export default router;
