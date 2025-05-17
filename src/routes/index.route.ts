@@ -10,6 +10,7 @@ import servicesRoutes from "./services.route";
 
 const router = express.Router();
 
+
 router.use("/auth", authRoutes);
 router.use("/payment", paymentRoutes);
 router.use("/bills", billRoute);
@@ -18,5 +19,6 @@ router.use("/partner", partnerRoute);
 // router.use("/user", userRoutes);
 router.use("/relationship", relationshipRoutes);
 router.use("/services", servicesRoutes);
+
 
 export default router;

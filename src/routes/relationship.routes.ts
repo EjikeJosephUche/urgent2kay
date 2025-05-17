@@ -9,8 +9,11 @@ router.use(authMiddleware);
 
 // Relationship Profile Routes
 router.post("/", relationshipController.createRelationship);
+
 router.get("/", relationshipController.getRelationships);
+
 router.get("/:id", relationshipController.getRelationshipById);
+
 router.put("/:id", relationshipController.updateRelationship);
 router.delete("/:id", relationshipController.deleteRelationship);
 

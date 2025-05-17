@@ -47,6 +47,7 @@ export const authenticateRequest: RequestHandler = async (
     };
 
     req.user = user;
+    req.userId = user._id.toString();
     next();
   } catch (error) {
     res.status(401).json({
