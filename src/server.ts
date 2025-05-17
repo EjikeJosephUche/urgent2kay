@@ -6,6 +6,8 @@ import indexRoute from "./routes/index.route";
 import "./cron/expireBundles";
 import paymentRoutes from "./routes/payment.route";
 import "./cron/expireBundles";
+import './cron/reminderCron'; 
+
 
 const app = express();
 // app.use("/api/payment", paymentRoutes);

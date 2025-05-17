@@ -26,7 +26,7 @@ export const BillBundleSchema = new Schema<IBillBundle>(
         amount: { type: Number },
         status: {
           type: String,
-          enum: ["pending", "paid", "declined"],
+          enum: ["pending", "paid", "declined", "accepted", "saved"],
           default: "pending",
         },
       },

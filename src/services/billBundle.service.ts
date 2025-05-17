@@ -5,6 +5,7 @@ import { BillBundle } from "../models/billBundle.model";
 import { IUser } from "../interfaces/user.interface";
 import { sendBundleLinkEmail } from "../config/email";
 import User from "../models/user.model";
+import { Notification } from "../models/notification.model";
 
 export const createBillBundle = async (
   title: string,
@@ -52,6 +53,7 @@ export const createBillBundle = async (
   }
 };
 
+
 export const shareBundleWithSponsor = async (
   bundleId: string,
   sponsorEmail: string
@@ -59,20 +61,23 @@ export const shareBundleWithSponsor = async (
   try {
     if (!sponsorEmail) throw new Error("Sponsor email is required");
 
-    const users = await User.find({ email: /@gmail\.com$/i });
-    console.log("Users found with gmail:", users);
-
-    const bundle = await BillBundle.findById(bundleId).populate("owner");
     const sponsor = await User.findOne({ email: sponsorEmail });
-
-    if (!bundle) throw new Error("Bundle not found");
     if (!sponsor) throw new Error("Sponsor not found");
 
-    if (
-      bundle.sponsors.some((s) => s.user.equals(sponsor._id as Types.ObjectId))
-    ) {
-      throw new Error("Sponsor already added to this bundle");
-    }
+
+    const bundle = await BillBundle.findById(bundleId).populate({
+      path: "owner",
+      select: "firstName email",
+    });
+
+    if (!bundle) throw new Error("Bundle not found");
+
+
+    const alreadyAdded = bundle.sponsors.some((s) =>
+      s.user.equals(sponsor._id as Types.ObjectId)
+    );
+    if (alreadyAdded) throw new Error("Sponsor already added to this bundle");
+
 
     bundle.sponsors.push({
       user: sponsor._id as Types.ObjectId,
@@ -80,6 +85,7 @@ export const shareBundleWithSponsor = async (
       status: "pending",
     });
 
+    // Send email first
     await sendBundleLinkEmail({
       to: sponsorEmail,
       bundleName: bundle.title,
@@ -88,7 +94,22 @@ export const shareBundleWithSponsor = async (
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
 
-    await bundle.save();
+    // Then send in-app notification
+    const notification = await Notification.create({
+      user: sponsor._id,
+      type: "invitation",
+      title: "🔔 You've been invited to sponsor a bundle",
+      message: `${
+        (bundle.owner as any).firstName
+      } has invited you to sponsor the bundle "${bundle.title}".`,
+      link: `/bundles/${bundle.uniqueLink}`,
+      actions: ["accept", "decline", "save"],
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+
+    // Add notification to sponsor's user
+    sponsor.notifications.push(notification._id);
+    await sponsor.save();
   } catch (error) {
     console.error("Error sharing bundle:", error);
     throw error;
