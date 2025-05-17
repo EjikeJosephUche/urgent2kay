@@ -18,8 +18,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
-);
-
+);  
+ 
 connectDB();
 
 // Routes
