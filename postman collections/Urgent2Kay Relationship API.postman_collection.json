@@ -1,0 +1,457 @@
+{
+  "info": {
+    "name": "Relationship API",
+    "description": "A collection for testing the relationship management API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"elliesbakes21@gmail.com\",\n  \"password\": \"baker123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/login",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login to get JWT token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Relationship Profiles",
+      "description": "Endpoints for managing relationship profiles",
+      "item": [
+        {
+          "name": "Create Relationship",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Relationship\",\n  \"type\": \"spouse\",\n  \"description\": \"Test description\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/relationship",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship"
+              ]
+            },
+            "description": "Create a new relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Relationships",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/relationship",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship"
+              ]
+            },
+            "description": "Get all relationships for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Relationship by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}"
+              ]
+            },
+            "description": "Get a specific relationship by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Relationship",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Relationship\",\n  \"type\": \"friend\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}"
+              ]
+            },
+            "description": "Update an existing relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Relationship",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}"
+              ]
+            },
+            "description": "Delete a relationship"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Spending Controls",
+      "description": "Endpoints for managing spending controls",
+      "item": [
+        {
+          "name": "Set Spending Controls",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monthlyLimit\": 500,\n  \"categoryLimits\": {\n    \"dining\": 100,\n    \"entertainment\": 150\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}/spending-controls",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}",
+                "spending-controls"
+              ]
+            },
+            "description": "Set spending controls for a relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Spending Controls",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}/spending-controls",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}",
+                "spending-controls"
+              ]
+            },
+            "description": "Get spending controls for a relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Spending Limits",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 75,\n  \"category\": \"dining\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}/check-limits",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}",
+                "check-limits"
+              ]
+            },
+            "description": "Check if a purchase would exceed spending limits"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Contribution Tracking",
+      "description": "Endpoints for tracking contributions within relationships",
+      "item": [
+        {
+          "name": "Record Contribution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"relationshipId\": \"{{relationship_id}}\",\n  \"amount\": 100,\n  \"category\": \"groceries\",\n  \"description\": \"Weekly grocery shopping\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/contributions",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "contributions"
+              ]
+            },
+            "description": "Record a financial contribution to a relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Contributions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}/contributions",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}",
+                "contributions"
+              ]
+            },
+            "description": "Get all contributions for a relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Contribution Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/{{relationship_id}}/contribution-stats",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "{{relationship_id}}",
+                "contribution-stats"
+              ]
+            },
+            "description": "Get statistics for contributions in a relationship"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Thank You",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Thanks for settling my fees. You are awesome!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/relationship/contributions/{{contribution_id}}/thank-you",
+              "host": [
+                "http://localhost:3000/api"
+              ],
+              "path": [
+                "relationship",
+                "contributions",
+                "{{contribution_id}}",
+                "thank-you"
+              ]
+            },
+            "description": "Send a thank you message for a contribution"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.response.code === 200 && pm.response.json().token) {",
+          "    pm.environment.set(\"auth_token\", pm.response.json().token);",
+          "    console.log(\"Auth token saved to environment\");",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "user@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "yourpassword",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "relationship_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contribution_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
