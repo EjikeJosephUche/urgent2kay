@@ -24,7 +24,7 @@ connectDB();
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the Urgent2kay API! 🎉");
+  res.send("Welcome to the Urgent2kay API! 🎉"); 
 });
 app.use("/api", indexRoute); // Central route file for all routes
 // app.use("/payment", paymentRoutes); !! This is now in the central route file

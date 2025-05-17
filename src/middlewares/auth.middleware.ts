@@ -27,7 +27,7 @@ const authMiddleware: RequestHandler = async (
       });
       return;
     }
-    const decoded = Jwt.verify(token as string, JWT_SECRET as string) as {
+    const decoded = Jwt.verify(token as string, JWT_SECRET as string) as { 
       userId: string;
       email: string;
       role: string;
