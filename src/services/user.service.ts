@@ -8,7 +8,6 @@ import path from "path";
 
 import {
   JWT_SECRET,
-  CLIENT_URL,
   EMAIL_HOST,
   EMAIL_PORT,
   EMAIL_USER,
@@ -50,7 +49,7 @@ class UserService {
           userId: savedUser._id,
         },
         JWT_SECRET,
-        { expiresIn: "30m" }
+        { expiresIn: "3d" }
       );
       console.log(fullUrl);
       const verificationLink = `${fullUrl}/api/auth/verify-email?token=${verificationToken}`;
@@ -92,7 +91,7 @@ class UserService {
         { userId: user._id, email: user.email },
         JWT_SECRET,
         {
-          expiresIn: "1h",
+          expiresIn: "3d",
         }
       );
       return token;
@@ -230,7 +229,7 @@ class UserService {
 
       // Generate new verification token
       const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-        expiresIn: "30m",
+        expiresIn: "3d",
       });
 
       const verificationLink = `${fullUrl}/api/auth/verify-email?token=${token}`;
@@ -284,7 +283,7 @@ class UserService {
         throw new Error("User not found");
       }
       const resetToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
-        expiresIn: "30m",
+        expiresIn: "3d",
       });
       const resetLink = `${fullUrl}/api/auth/reset-password?token=${resetToken}`;
       const firstName = user.firstName;

@@ -12,6 +12,7 @@ declare global {
         firstName?: string;
       };
       user?: IUser & Document;
+      userId?: string;
     }
   }
 }
