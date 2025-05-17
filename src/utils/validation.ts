@@ -47,4 +47,4 @@ export const getValidationFields = (schema: any, fields: string[]) => {
 
   // Return Joi object that allows only the specified fields and forbids unknown fields
   return Joi.object(filteredSchema).unknown(false);
-};
+}; 
