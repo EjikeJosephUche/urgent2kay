@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types, HydratedDocument } from "mongoose";
+import mongoose, { Schema, Types, HydratedDocument, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 import IUser from "../interfaces/user.interface";
 
@@ -28,12 +28,21 @@ const userSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: true, 
+      required: true,
     },
     verified: {
       type: Boolean,
       default: false,
     },
+
+    //added here to sync notification to user profile
+    //we will use .populate to get this done
+    notifications: [
+      {
+        type: Types.ObjectId,
+        ref: "Notification",
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -61,5 +70,5 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model<IUser & Document>("User", userSchema);
 export default User;

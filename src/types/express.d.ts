@@ -9,6 +9,7 @@ declare global {
         _id: string;
         email: string;
         role?: string;
+        firstName?: string;
       };
       user?: IUser & Document;
     }

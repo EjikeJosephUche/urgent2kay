@@ -20,9 +20,7 @@ export interface IBillBundle extends Document {
   sponsors: {
     user: Types.ObjectId;
     amount: number;
-    status: "pending" | "paid" | "declined";
+    status: "pending" | "paid" | "declined" | "accepted" | "saved";
   }[];
   merchantBankDetails: MerchantBankDetail[];
-
 }
-

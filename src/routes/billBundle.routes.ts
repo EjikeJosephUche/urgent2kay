@@ -2,7 +2,10 @@ import { Router } from "express";
 import {
   createBundle,
   getBundleWithLink,
-  shareBundle,
+  sendBundleToSponsor,
+  markNotificationAsRead,
+  getNotifications,
+  getUnreadNotificationCount,
 } from "../controllers/billBundle.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 import { verifyBundleLink } from "../middlewares/verifyBundleLink";
@@ -24,7 +27,7 @@ router.post(
     body("description").optional().isString(),
   ],
   createBundle
-); 
+);
 
 router.get(
   "/:uniqueLink",
@@ -35,15 +38,27 @@ router.get(
       bundle: req.bundle,
     });
   },
-  getBundleWithLink 
-); 
+  getBundleWithLink
+);
 
 router.post(
-  "/:id/share",
+  "/:bundleId/share",
   authMiddleware,
   [body("sponsorEmail").isEmail().normalizeEmail()],
-  // verifyBundleLink, // watch here for error. uncomment for prod ⚠️
-  shareBundle
+  sendBundleToSponsor
+);
+
+router.patch(
+  "/notifications/:notificationId/read",
+  authMiddleware,
+  markNotificationAsRead
+);
+router.get("/notifications", authMiddleware, getNotifications);
+
+router.get(
+  "/notifications/unread-count",
+  authMiddleware,
+  getUnreadNotificationCount
 );
 
 export default router;

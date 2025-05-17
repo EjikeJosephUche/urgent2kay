@@ -17,6 +17,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   verified: boolean;
+  notifications: Types.ObjectId[];
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
