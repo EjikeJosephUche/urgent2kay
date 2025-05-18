@@ -14,13 +14,13 @@ export const sendReminderEmail = async (
       return;
     }
 
-    const transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({ 
       service: "Gmail", 
       auth: {
         user: process.env.EMAIL_USER, 
         pass: process.env.EMAIL_PASS,
       },
-    });
+    }); 
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
