@@ -37,7 +37,7 @@ export const sendBundleLinkEmail = async (
   await transporter.sendMail({
     from: `"Urgent2kay Bill Bundler" <${process.env.EMAIL_FROM}>`,
     to: params.to,
-    subject: `You've been invited to sponsor: ${params.bundleName}`,
+    subject: `You've been invited to sponsor: ${params.bundleName}`, 
     html,
     text,
   });
